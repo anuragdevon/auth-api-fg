@@ -1,5 +1,6 @@
-env
+.env
 .env_dev
 .env_prod
 CloudConnectorFiles/
 __pycache__
+fpa/

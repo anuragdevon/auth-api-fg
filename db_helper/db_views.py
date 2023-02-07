@@ -70,6 +70,7 @@ def add_user(inputData):
     # TODO: ROLLBACK WHEN ERROR HAPPENS
     if not (ErrorData["code"] == status.HTTP_200_OK):
         pass
+    # get_session().rollback()
     # TODO: ROLLBACK WHEN ERROR HAPPENS
     return response, ErrorData
 

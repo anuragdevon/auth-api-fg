@@ -96,124 +96,124 @@ def User_Update(uid, name=None, email=None, password=None, photo_url=None):
     if photo_url is not None: params["photo_url"] = photo_url
     return auth.update_user(uid=uid, app=FIREBASE_APP, **params)
 
-def User_Login(email, password, return_secure_token=True):
-    LOGIN_API_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
-    payload = json.dumps({
-        "email": email,
-        "password": password,
-        "returnSecureToken": return_secure_token
-    })
+# def User_Login(email, password, return_secure_token=True):
+#     LOGIN_API_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
+#     payload = json.dumps({
+#         "email": email,
+#         "password": password,
+#         "returnSecureToken": return_secure_token
+#     })
 
-    r = requests.post(LOGIN_API_URL,
-        params={"key": os.environ.get("FIREBASE_WEB_API_KEY")},
-        data=payload
-    )
+#     r = requests.post(LOGIN_API_URL,
+#         params={"key": os.environ.get("FIREBASE_WEB_API_KEY")},
+#         data=payload
+#     )
 
-    return r.json()
-# {'error': {'code': 400, 'message': 'INVALID_PASSWORD', 'errors': [{'message': 'INVALID_PASSWORD', 'domain': 'global', 'reason': 'invalid'}]}}"
-# "desc": "No user record found for the provided email: zdzzogcimmizuclhaa@sdv.com."
-def User_RegenerateIDToken(refresh_token):
-    API_KEY = os.environ.get("FIREBASE_WEB_API_KEY")
-    REGEN_IDTOKEN_API_URL = f"https://securetoken.googleapis.com/v1/token?key={API_KEY}"
+#     return r.json()
+# # {'error': {'code': 400, 'message': 'INVALID_PASSWORD', 'errors': [{'message': 'INVALID_PASSWORD', 'domain': 'global', 'reason': 'invalid'}]}}"
+# # "desc": "No user record found for the provided email: zdzzogcimmizuclhaa@sdv.com."
+# def User_RegenerateIDToken(refresh_token):
+#     API_KEY = os.environ.get("FIREBASE_WEB_API_KEY")
+#     REGEN_IDTOKEN_API_URL = f"https://securetoken.googleapis.com/v1/token?key={API_KEY}"
     
-    payload = json.dumps({
-        "grant_type": "refresh_token",
-        "refresh_token": refresh_token
-    })
+#     payload = json.dumps({
+#         "grant_type": "refresh_token",
+#         "refresh_token": refresh_token
+#     })
 
-    r = requests.post(REGEN_IDTOKEN_API_URL,
-        data=payload
-    )
+#     r = requests.post(REGEN_IDTOKEN_API_URL,
+#         data=payload
+#     )
     
-    id_token = ""
-    e = None
-    if "id_token" in r.json().keys():
-        id_token = r.json()["id_token"]
-    else:
-        e = "invalid refresh_token"
-    return id_token, e
+#     id_token = ""
+#     e = None
+#     if "id_token" in r.json().keys():
+#         id_token = r.json()["id_token"]
+#     else:
+#         e = "invalid refresh_token"
+#     return id_token, e
 
-def User_ResetPassword(email):
-    API_KEY = os.environ.get("FIREBASE_WEB_API_KEY")
-    PASSWORD_RESET_API_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={API_KEY}"
+# def User_ResetPassword(email):
+#     API_KEY = os.environ.get("FIREBASE_WEB_API_KEY")
+#     PASSWORD_RESET_API_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={API_KEY}"
 
-    payload = json.dumps({
-        "requestType": "PASSWORD_RESET",
-        "email": str(email)
-    })
+#     payload = json.dumps({
+#         "requestType": "PASSWORD_RESET",
+#         "email": str(email)
+#     })
 
-    response = requests.post(PASSWORD_RESET_API_URL,
-        data=payload
-    ).json()
+#     response = requests.post(PASSWORD_RESET_API_URL,
+#         data=payload
+#     ).json()
     
-    if "error" in response.keys():
-        return response["error"]["message"]
-    else:
-        return None
-    # {'error': {'code': 400, 'message': 'EMAIL_NOT_FOUND', 'errors': [{'message': 'EMAIL_NOT_FOUND', 'domain': 'global', 'reason': 'invalid'}]}}
-    # {'kind': 'identitytoolkit#GetOobConfirmationCodeResponse', 'email': 'msm19b021@iiitdm.ac.in'}
+#     if "error" in response.keys():
+#         return response["error"]["message"]
+#     else:
+#         return None
+#     # {'error': {'code': 400, 'message': 'EMAIL_NOT_FOUND', 'errors': [{'message': 'EMAIL_NOT_FOUND', 'domain': 'global', 'reason': 'invalid'}]}}
+#     # {'kind': 'identitytoolkit#GetOobConfirmationCodeResponse', 'email': 'msm19b021@iiitdm.ac.in'}
 
-def User_VerifyEmail(email):
-    global FIREBASE_APP
-    verify_link = auth.generate_email_verification_link(email)
-    # Custom SMTP Server
-    VerificationEmail_Send(email, verify_link)
+# def User_VerifyEmail(email):
+#     global FIREBASE_APP
+#     verify_link = auth.generate_email_verification_link(email)
+#     # Custom SMTP Server
+#     VerificationEmail_Send(email, verify_link)
 
-def User_DecodeIDToken(id_token):
-    global FIREBASE_APP
-    decoded_token = auth.verify_id_token(id_token, app=FIREBASE_APP, check_revoked=True)
-    return decoded_token
+# def User_DecodeIDToken(id_token):
+#     global FIREBASE_APP
+#     decoded_token = auth.verify_id_token(id_token, app=FIREBASE_APP, check_revoked=True)
+#     return decoded_token
 
-def User_RevokeRefreshTokens(uid):
-    global FIREBASE_APP
-    auth.revoke_refresh_tokens(uid, app=FIREBASE_APP)
+# def User_RevokeRefreshTokens(uid):
+#     global FIREBASE_APP
+#     auth.revoke_refresh_tokens(uid, app=FIREBASE_APP)
 
-def User_UpdateTokens(id_token, refresh_token):
-    # Check if need to Regenerate ID Token
-    decoded_data = {}
-    e = None
-    try:
-        # Decode ID Token
-        decoded_data = User_DecodeIDToken(id_token)
-    except auth.ExpiredIdTokenError as exp:
-        id_token, e_regen = User_RegenerateIDToken(refresh_token)
-        if e_regen is None:
-            # Decode New ID Token
-            decoded_data = User_DecodeIDToken(id_token)
-        else:
-            e = e_regen
-    except Exception as exc:
-        e = exc
-    return decoded_data, id_token, e
+# def User_UpdateTokens(id_token, refresh_token):
+#     # Check if need to Regenerate ID Token
+#     decoded_data = {}
+#     e = None
+#     try:
+#         # Decode ID Token
+#         decoded_data = User_DecodeIDToken(id_token)
+#     except auth.ExpiredIdTokenError as exp:
+#         id_token, e_regen = User_RegenerateIDToken(refresh_token)
+#         if e_regen is None:
+#             # Decode New ID Token
+#             decoded_data = User_DecodeIDToken(id_token)
+#         else:
+#             e = e_regen
+#     except Exception as exc:
+#         e = exc
+#     return decoded_data, id_token, e
 
-# Verify functions
-def User_GetAllUIDs():
-    global FIREBASE_APP
-    all_users = auth.list_users(app=FIREBASE_APP).users
-    all_uids = [u.uid for u in all_users]
-    return all_uids
+# # Verify functions
+# def User_GetAllUIDs():
+#     global FIREBASE_APP
+#     all_users = auth.list_users(app=FIREBASE_APP).users
+#     all_uids = [u.uid for u in all_users]
+#     return all_uids
 
-def User_VerfyFirestore():
-    global FIREBASE_APP
-    global FIREBASE_DB
-    all_uids = User_GetAllUIDs()
-    deleted_users = []
-    conflict_users = []
-    uid_conflicts = [True]*len(all_uids)
-    # firestore.collections(CollectionName_Users).get()
-    docs = FIREBASE_DB.collection(CollectionName_Users).stream()
-    for doc in docs:
-        # f'{doc.id} => {doc.to_dict()}'
-        if doc.id in all_uids:
-            uid_conflicts[all_uids.index(doc.id)] = False
-        else:
-            deleted_users.append(doc.id)
+# def User_VerfyFirestore():
+#     global FIREBASE_APP
+#     global FIREBASE_DB
+#     all_uids = User_GetAllUIDs()
+#     deleted_users = []
+#     conflict_users = []
+#     uid_conflicts = [True]*len(all_uids)
+#     # firestore.collections(CollectionName_Users).get()
+#     docs = FIREBASE_DB.collection(CollectionName_Users).stream()
+#     for doc in docs:
+#         # f'{doc.id} => {doc.to_dict()}'
+#         if doc.id in all_uids:
+#             uid_conflicts[all_uids.index(doc.id)] = False
+#         else:
+#             deleted_users.append(doc.id)
 
-    for uc, u in zip(uid_conflicts, all_uids):
-        if uc :
-            conflict_users.append(u)
+#     for uc, u in zip(uid_conflicts, all_uids):
+#         if uc :
+#             conflict_users.append(u)
     
-    return deleted_users, conflict_users
+#     return deleted_users, conflict_users
 
 # Driver Code
 FirebaseInit()

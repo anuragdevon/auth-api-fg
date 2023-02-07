@@ -7,7 +7,8 @@ import uvicorn
 import os
 
 # Load Environment Variables
-load_dotenv(os.environ["ENVIRONMENT"])
+load_dotenv()
+# load_dotenv(os.environ["ENVIRONMENT"])
 
 from utils import *
 from db_helper.db_views import *
@@ -29,7 +30,7 @@ app.add_middleware(
 # AUTH Decorators BEGIN
 #=========================
 
-@app.post("/auth/user/signup/")
+@app.post("/auth/user/signup")
 async def user_signup(inputs: Request):
     try:
         # Load Inputs
@@ -49,13 +50,13 @@ async def user_signup(inputs: Request):
         # Default Avatar
         avatar_url = os.environ["DEFAULT_AVATAR_URL"]
         # Upload Avatar
-        if not (user_avatar_encoded == ""):
-            avatar_name = username + "_" + ".png"
-            avatarInputData = {
-                "avatar_name": avatar_name,
-                "avatar": user_avatar_encoded
-            }
-            avatar_url, ErrorData = upload_user_avatar(avatarInputData)
+        # if not (user_avatar_encoded == ""):
+        #     avatar_name = username + "_" + ".png"
+        #     avatarInputData = {
+        #         "avatar_name": avatar_name,
+        #         "avatar": user_avatar_encoded
+        #     }
+        #     avatar_url, ErrorData = upload_user_avatar(avatarInputData)
 
         # Call DB Service to Add User
         addUserInputData = {
