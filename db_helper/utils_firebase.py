@@ -133,23 +133,23 @@ def User_RegenerateIDToken(refresh_token):
         e = "invalid refresh_token"
     return id_token, e
 
-# def User_ResetPassword(email):
-#     API_KEY = os.environ.get("FIREBASE_WEB_API_KEY")
-#     PASSWORD_RESET_API_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={API_KEY}"
+def User_ResetPassword(email):
+    API_KEY = os.environ.get("FIREBASE_WEB_API_KEY")
+    PASSWORD_RESET_API_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={API_KEY}"
 
-#     payload = json.dumps({
-#         "requestType": "PASSWORD_RESET",
-#         "email": str(email)
-#     })
+    payload = json.dumps({
+        "requestType": "PASSWORD_RESET",
+        "email": str(email)
+    })
 
-#     response = requests.post(PASSWORD_RESET_API_URL,
-#         data=payload
-#     ).json()
+    response = requests.post(PASSWORD_RESET_API_URL,
+        data=payload
+    ).json()
     
-#     if "error" in response.keys():
-#         return response["error"]["message"]
-#     else:
-#         return None
+    if "error" in response.keys():
+        return response["error"]["message"]
+    else:
+        return None
 #     # {'error': {'code': 400, 'message': 'EMAIL_NOT_FOUND', 'errors': [{'message': 'EMAIL_NOT_FOUND', 'domain': 'global', 'reason': 'invalid'}]}}
 #     # {'kind': 'identitytoolkit#GetOobConfirmationCodeResponse', 'email': 'msm19b021@iiitdm.ac.in'}
 
@@ -164,9 +164,9 @@ def User_DecodeIDToken(id_token):
     decoded_token = auth.verify_id_token(id_token, app=FIREBASE_APP, check_revoked=True)
     return decoded_token
 
-# def User_RevokeRefreshTokens(uid):
-#     global FIREBASE_APP
-#     auth.revoke_refresh_tokens(uid, app=FIREBASE_APP)
+def User_RevokeRefreshTokens(uid):
+    global FIREBASE_APP
+    auth.revoke_refresh_tokens(uid, app=FIREBASE_APP)
 
 def User_UpdateTokens(id_token, refresh_token):
     # Check if need to Regenerate ID Token

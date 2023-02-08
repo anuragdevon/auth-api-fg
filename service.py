@@ -88,7 +88,7 @@ async def user_signup(inputs: Request):
         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
 
 
-@app.post("/auth/user/login/")
+@app.post("/auth/user/login")
 async def user_login(inputs: Request):
     try:
         # Load Inputs
@@ -116,7 +116,7 @@ async def user_login(inputs: Request):
     except ValueError as e:
         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
 
-@app.post("/auth/user/resend/email/")
+@app.post("/auth/user/resend/email")
 async def user_resend_email(inputs: Request):
     try:
         # Load Inputs
@@ -138,7 +138,7 @@ async def user_resend_email(inputs: Request):
     except ValueError as e:
         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
 
-@app.get("/auth/user/get/")
+@app.get("/auth/user/get")
 async def user_get(inputs: Request):
     try:
         # Load Inputs
@@ -183,7 +183,7 @@ async def user_get(inputs: Request):
 #         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
 
 
-@app.post("/auth/user/update/")
+@app.post("/auth/user/update")
 async def user_update(inputs: Request):
     try:
         # Load Inputs
@@ -213,7 +213,7 @@ async def user_update(inputs: Request):
     except ValueError as e:
         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
 
-@app.post("/auth/user/password/reset/")
+@app.post("/auth/user/password/reset")
 async def user_password_reset(inputs: Request):
     try:
         # Load Inputs
@@ -239,7 +239,7 @@ async def user_password_reset(inputs: Request):
     except ValueError as e:
         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
 
-@app.post("/auth/user/delete/")
+@app.post("/auth/user/delete")
 async def user_delete(inputs: Request):
     try:
         # Load Inputs
@@ -270,7 +270,7 @@ async def user_delete(inputs: Request):
         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
 
 
-@app.post("/auth/user/logout/")
+@app.post("/auth/user/logout")
 async def user_logout(inputs: Request):
     try:
         # Load Inputs
@@ -294,38 +294,6 @@ async def user_logout(inputs: Request):
             "output": response,
             "error": ErrorData
         }
-        return JSONResponse(ResponseData)
-    except ValueError as e:
-        return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
-
-
-@app.post("/auth/user/update/following/")
-async def user_update_following(inputs: Request):
-    try:
-        # Load Inputs
-        inputData = await inputs.json()
-
-        response = {}
-        ErrorData = {"code": status.HTTP_200_OK, "desc": "No Error"}
-
-        followUpdateSuccess = False
-
-        # Process Function
-        # Call DB Service to Update Follow
-        followUserData, ErrorData = update_following(inputData)
-        
-        # Check if logged out successfully
-        if ErrorData["code"] == status.HTTP_200_OK:
-            followUpdateSuccess = True
-
-        followUserData["follow_success"] = followUpdateSuccess
-
-        # Send Outputs
-        ResponseData = {
-            "output": followUserData,
-            "error": ErrorData
-        }
-
         return JSONResponse(ResponseData)
     except ValueError as e:
         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)

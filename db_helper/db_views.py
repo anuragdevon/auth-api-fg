@@ -309,8 +309,8 @@ def delete_user(inputData):
             ErrorData = {"code": status.HTTP_500_INTERNAL_SERVER_ERROR, "desc": "Unable to delete completely!"}
 
     response = {
-        "id_token": id_token,
-        "refresh_token": refresh_token
+        "id_token": "",
+        "refresh_token": ""
     }
     return response, ErrorData
 
