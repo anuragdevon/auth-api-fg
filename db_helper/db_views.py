@@ -92,6 +92,7 @@ def login_user(inputData):
     try:
         # Check if email verified
         user_data = User_GetWithEmail(email)
+        print(user_data)
         if user_data.email_verified:
             # Login
             login_data = User_Login(email, password)

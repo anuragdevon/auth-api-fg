@@ -7,6 +7,7 @@ import sib_api_v3_sdk
 def VerificationEmail_Send(verify_email, verify_link):
     configuration = sib_api_v3_sdk.Configuration()
     configuration.api_key['api-key'] = os.getenv("SENDINBLUE_API_KEY")
+    print(os.getenv("SENDINBLUE_API_KEY"))
 
     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
     subject = "Contact From aSoceitte Website"
