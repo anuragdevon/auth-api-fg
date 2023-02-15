@@ -160,29 +160,6 @@ async def user_get(inputs: Request):
         print("user_get[error]: " + str(e))
         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
 
-# @app.get("/auth/user/get/other/")
-# async def user_getother(inputs: Request):
-#     try:
-#         # Load Inputs
-#         inputData = await inputs.json()
-
-#         response = {}
-#         ErrorData = {"code": status.HTTP_200_OK, "desc": "No Error"}
-
-#         # Call DB Service to get user data
-#         getUserData, ErrorData = get_user_other(inputData)
-
-#         # Send Outputs
-#         ResponseData = {
-#             "output": getUserData,
-#             "error": ErrorData
-#         }
-#         return JSONResponse(ResponseData)
-#     except ValueError as e:
-#         print("user_get[error]: " + str(e))
-#         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
-
-
 @app.post("/auth/user/update")
 async def user_update(inputs: Request):
     try:
