@@ -1,7 +1,6 @@
 .env
 .env_dev
 .env_prod
-CloudConnectorFiles/
 __pycache__
-fpa/
-db_helper/auth-python-module-firebase-adminsdk-xchuh-09006d6fdc.json
+env/
+src/db_helper/serviceAccountKey.json
