@@ -11,6 +11,7 @@ AUTH_USERPROFILES_BLOB = ""
 AUTH_SAVEPATH = ""
 GCP_STORAGE = "spirit_profiles"
 
+
 # User Commands
 def add_user(inputData):
     UserData = inputData["user_data"]
@@ -25,21 +26,33 @@ def add_user(inputData):
             "name": UserData["name"],
             "email": UserData["email"],
             "password": UserData["password"],
-            "photo_url": UserData["avatar_url"]
+            "photo_url": UserData["avatar_url"],
         }
         User_Add(**user_data)
-            
+
     except Exception as e:
         generate_error(e)
         # Classification of errors
         if str(e).startswith("Malformed email"):
-            ErrorData = {"code": status.HTTP_406_NOT_ACCEPTABLE, "desc": "Invalid Email!"}
+            ErrorData = {
+                "code": status.HTTP_406_NOT_ACCEPTABLE,
+                "desc": "Invalid Email!",
+            }
         elif str(e).startswith("Invalid password string"):
-            ErrorData = {"code": status.HTTP_406_NOT_ACCEPTABLE, "desc": "Invalid Password"}
+            ErrorData = {
+                "code": status.HTTP_406_NOT_ACCEPTABLE,
+                "desc": "Invalid Password",
+            }
         elif str(e).endswith("(EMAIL_EXISTS)."):
-            ErrorData = {"code": status.HTTP_406_NOT_ACCEPTABLE, "desc": "User Already Exists!"}
+            ErrorData = {
+                "code": status.HTTP_406_NOT_ACCEPTABLE,
+                "desc": "User Already Exists!",
+            }
         else:
-            ErrorData = {"code": status.HTTP_500_INTERNAL_SERVER_ERROR, "desc": "Internal Server Error"}
+            ErrorData = {
+                "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "desc": "Internal Server Error",
+            }
 
     # Add User DB Data
     if ErrorData["code"] == status.HTTP_200_OK:
@@ -57,7 +70,10 @@ def add_user(inputData):
                     UserDB_AddSubcollection(user_data.uid, k, UserData[k])
         except Exception as e:
             generate_error(e)
-            ErrorData = {"code": status.HTTP_500_INTERNAL_SERVER_ERROR, "desc": "Internal Server Error"}
+            ErrorData = {
+                "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "desc": "Internal Server Error",
+            }
 
     # Send Verify Email
     if ErrorData["code"] == status.HTTP_200_OK:
@@ -65,7 +81,10 @@ def add_user(inputData):
             User_VerifyEmail(UserData["email"])
         except Exception as e:
             generate_error(e)
-            ErrorData = {"code": status.HTTP_503_SERVICE_UNAVAILABLE, "desc": "Unable to send verification email!"}
+            ErrorData = {
+                "code": status.HTTP_503_SERVICE_UNAVAILABLE,
+                "desc": "Unable to send verification email!",
+            }
 
     # TODO: ROLLBACK WHEN ERROR HAPPENS
     if not (ErrorData["code"] == status.HTTP_200_OK):
@@ -79,10 +98,7 @@ def login_user(inputData):
     email = inputData["email"]
     password = inputData["password"]
 
-    response = {
-        "id_token": "",
-        "refresh_token": ""
-    }
+    response = {"id_token": "", "refresh_token": ""}
     ErrorData = {"code": status.HTTP_200_OK, "desc": "No Error"}
 
     # Process Function
@@ -99,19 +115,26 @@ def login_user(inputData):
             if "error" in login_data.keys():
                 # If password is wrong or multiple failed attemps
                 if login_data["error"]["message"] == "INVALID_PASSWORD":
-                    ErrorData = {"code": status.HTTP_401_UNAUTHORIZED, "desc": "Invalid Password!"}
-                else: ErrorData = {"code": status.HTTP_401_UNAUTHORIZED, "desc": "Unable to login!"}
+                    ErrorData = {
+                        "code": status.HTTP_401_UNAUTHORIZED,
+                        "desc": "Invalid Password!",
+                    }
+                else:
+                    ErrorData = {
+                        "code": status.HTTP_401_UNAUTHORIZED,
+                        "desc": "Unable to login!",
+                    }
                 generate_error(login_data)
             else:
                 id_token = login_data["idToken"]
                 refresh_token = login_data["refreshToken"]
-                response = {
-                    "id_token": id_token,
-                    "refresh_token": refresh_token
-                }
+                response = {"id_token": id_token, "refresh_token": refresh_token}
         else:
-            ErrorData = {"code": status.HTTP_401_UNAUTHORIZED, "desc": "Email not verified!"}
-                
+            ErrorData = {
+                "code": status.HTTP_401_UNAUTHORIZED,
+                "desc": "Email not verified!",
+            }
+
     except Exception as e:
         if str(e).startswith("No user record found"):
             ErrorData = {"code": status.HTTP_401_UNAUTHORIZED, "desc": "Invalid Email!"}
@@ -123,10 +146,11 @@ def login_user(inputData):
 
     return response, ErrorData
 
+
 def resend_verfication_email(email):
     response = ""
     ErrorData = {"code": status.HTTP_200_OK, "desc": "No Error"}
-    
+
     try:
         # Process Function
         # Check if email verified
@@ -141,16 +165,19 @@ def resend_verfication_email(email):
                 response = "verification email sent!"
             except Exception as e:
                 generate_error(e)
-                ErrorData = {"code": status.HTTP_503_SERVICE_UNAVAILABLE, "desc": "Unable to send verification email!"}
-                
+                ErrorData = {
+                    "code": status.HTTP_503_SERVICE_UNAVAILABLE,
+                    "desc": "Unable to send verification email!",
+                }
+
     except Exception as e:
         generate_error(e)
         ErrorData = {"code": status.HTTP_401_UNAUTHORIZED, "desc": "Invalid User!"}
 
     return response, ErrorData
 
-def get_user(inputData):
 
+def get_user(inputData):
     id_token = inputData["id_token"]
     refresh_token = inputData["refresh_token"]
 
@@ -158,22 +185,25 @@ def get_user(inputData):
     ErrorData = {"code": status.HTTP_200_OK, "desc": "No Error"}
 
     UserData = {}
-    
+
     # Process Function
     # Get User Auth Data
     decoded_data, id_token, e = User_UpdateTokens(id_token, refresh_token)
     if e is not None:
         generate_error(e)
-        ErrorData = {"code": status.HTTP_401_UNAUTHORIZED, "desc": "Unable to validate user!"}
+        ErrorData = {
+            "code": status.HTTP_401_UNAUTHORIZED,
+            "desc": "Unable to validate user!",
+        }
         id_token = ""
         refresh_token = ""
-    
+
     else:
         UserData = {
             "user_id": decoded_data["uid"],
             "name": decoded_data["name"],
             "email": decoded_data["email"],
-            "avatar_url": decoded_data["picture"]
+            "avatar_url": decoded_data["picture"],
         }
 
         UserID = decoded_data["uid"]
@@ -188,7 +218,10 @@ def get_user(inputData):
 
         except Exception as e:
             generate_error(e)
-            ErrorData = {"code": status.HTTP_204_NO_CONTENT, "desc": "Unable to get user info!"}
+            ErrorData = {
+                "code": status.HTTP_204_NO_CONTENT,
+                "desc": "Unable to get user info!",
+            }
 
     response["id_token"] = id_token
     response["refresh_token"] = refresh_token
@@ -196,8 +229,8 @@ def get_user(inputData):
 
     return response, ErrorData
 
-def get_user_other(inputData):
 
+def get_user_other(inputData):
     id_token = inputData["id_token"]
     refresh_token = inputData["refresh_token"]
     UserID = inputData["user_id"]
@@ -210,18 +243,21 @@ def get_user_other(inputData):
     decoded_data, id_token, e = User_UpdateTokens(id_token, refresh_token)
     if e is not None:
         generate_error(e)
-        ErrorData = {"code": status.HTTP_401_UNAUTHORIZED, "desc": "Unable to validate user!"}
+        ErrorData = {
+            "code": status.HTTP_401_UNAUTHORIZED,
+            "desc": "Unable to validate user!",
+        }
         id_token = ""
         refresh_token = ""
-    
+
     else:
         user_data = User_Get(UserID)
         response = {
             "response": {
                 "user_id": user_data.uid,
-                "name":user_data.display_name,
+                "name": user_data.display_name,
                 "email": user_data.email,
-                "avatar_url": user_data.photo_url
+                "avatar_url": user_data.photo_url,
             }
         }
         # Get User DB Data
@@ -232,7 +268,10 @@ def get_user_other(inputData):
             response["response"]["following_count"] = len(user_db_data["following"])
         except Exception as e:
             generate_error(e)
-            ErrorData = {"code": status.HTTP_204_NO_CONTENT, "desc": "Unable to get user data!"}
+            ErrorData = {
+                "code": status.HTTP_204_NO_CONTENT,
+                "desc": "Unable to get user data!",
+            }
 
     response["id_token"] = id_token
     response["refresh_token"] = refresh_token
@@ -254,7 +293,10 @@ def update_user(inputData):
     decoded_data, id_token, e = User_UpdateTokens(id_token, refresh_token)
     if e is not None:
         generate_error(e)
-        ErrorData = {"code": status.HTTP_403_FORBIDDEN, "desc": "Unable to validate user!"}
+        ErrorData = {
+            "code": status.HTTP_403_FORBIDDEN,
+            "desc": "Unable to validate user!",
+        }
 
     if ErrorData["code"] == status.HTTP_200_OK:
         try:
@@ -262,17 +304,19 @@ def update_user(inputData):
             user_auth_data = {
                 "name": UserData["name"] if "name" in UserData.keys() else None,
                 "email": UserData["email"] if "email" in UserData.keys() else None,
-                "photo_url": UserData["avatar_url"] if "avatar_url" in UserData.keys() else None
+                "photo_url": UserData["avatar_url"]
+                if "avatar_url" in UserData.keys()
+                else None,
             }
             User_Update(uid, **user_auth_data)
         except Exception as e:
             print("update_user[Error]: ", str(e))
-            ErrorData = {"code": status.HTTP_500_INTERNAL_SERVER_ERROR, "desc": "Unable to update!"}
+            ErrorData = {
+                "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "desc": "Unable to update!",
+            }
 
-    response = {
-        "id_token": id_token,
-        "refresh_token": refresh_token
-    }
+    response = {"id_token": id_token, "refresh_token": refresh_token}
     return response, ErrorData
 
 
@@ -289,7 +333,10 @@ def delete_user(inputData):
     decoded_data, id_token, e = User_UpdateTokens(id_token, refresh_token)
     if e is not None:
         print("delete_user:[Error]: ", str(e))
-        ErrorData = {"code": status.HTTP_403_FORBIDDEN, "desc": "Unable to validate user!"}
+        ErrorData = {
+            "code": status.HTTP_403_FORBIDDEN,
+            "desc": "Unable to validate user!",
+        }
 
     if ErrorData["code"] == status.HTTP_200_OK:
         try:
@@ -298,7 +345,10 @@ def delete_user(inputData):
             User_Delete(uid)
         except Exception as e:
             print("delete_user:[Error]: ", str(e))
-            ErrorData = {"code": status.HTTP_500_INTERNAL_SERVER_ERROR, "desc": "Unable to delete user!"}
+            ErrorData = {
+                "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "desc": "Unable to delete user!",
+            }
 
     # User DB Delete
     if ErrorData["code"] == status.HTTP_200_OK:
@@ -306,12 +356,12 @@ def delete_user(inputData):
             UserDB_Delete(decoded_data["uid"])
         except Exception as e:
             print("delete_user:[Error]: ", str(e))
-            ErrorData = {"code": status.HTTP_500_INTERNAL_SERVER_ERROR, "desc": "Unable to delete completely!"}
+            ErrorData = {
+                "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "desc": "Unable to delete completely!",
+            }
 
-    response = {
-        "id_token": "",
-        "refresh_token": ""
-    }
+    response = {"id_token": "", "refresh_token": ""}
     return response, ErrorData
 
 
@@ -327,7 +377,10 @@ def logout_user(inputData):
     decoded_data, id_token, e = User_UpdateTokens(id_token, refresh_token)
     if e is not None:
         generate_error(e)
-        ErrorData = {"code": status.HTTP_403_FORBIDDEN, "desc": "Unable to validate user!"}
+        ErrorData = {
+            "code": status.HTTP_403_FORBIDDEN,
+            "desc": "Unable to validate user!",
+        }
 
     if ErrorData["code"] == status.HTTP_200_OK:
         try:
@@ -336,12 +389,12 @@ def logout_user(inputData):
             User_RevokeRefreshTokens(uid)
         except Exception as e:
             generate_error(e)
-            ErrorData = {"code": status.HTTP_500_INTERNAL_SERVER_ERROR, "desc": "Unable to logout user!"}
+            ErrorData = {
+                "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "desc": "Unable to logout user!",
+            }
 
-    response ={
-        "id_token": "",
-        "refresh_token": ""
-    }
+    response = {"id_token": "", "refresh_token": ""}
     return response, ErrorData
 
 
@@ -372,7 +425,10 @@ def upload_user_avatar(inputs):
         os.remove(localPath)
     except Exception as e:
         print("upload_user_avatar[Error]:", str(e))
-        ErrorData = {"code": status.HTTP_500_INTERNAL_SERVER_ERROR, "desc": "Avatar upload failed!"}
+        ErrorData = {
+            "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+            "desc": "Avatar upload failed!",
+        }
 
     return response, ErrorData
 
@@ -396,7 +452,7 @@ def update_following(inputData):
     refresh_token = inputData["refresh_token"]
     following_user_id = inputData["user_id_following"]
     following_update = inputData["following"]
-    # add=True 
+    # add=True
 
     response = {}
     ErrorData = {"code": status.HTTP_200_OK, "desc": "No Error"}
@@ -404,7 +460,10 @@ def update_following(inputData):
     decoded_data, id_token, e = User_UpdateTokens(id_token, refresh_token)
     if e is not None:
         print("update_following:[Error]: ", str(e))
-        ErrorData = {"code": status.HTTP_403_FORBIDDEN, "desc": "Unable to validate user!"}
+        ErrorData = {
+            "code": status.HTTP_403_FORBIDDEN,
+            "desc": "Unable to validate user!",
+        }
 
     if ErrorData["code"] == status.HTTP_200_OK:
         try:
@@ -422,12 +481,13 @@ def update_following(inputData):
 
         except Exception as e:
             print("update_following:[Error]: ", str(e))
-            ErrorData = {"code": status.HTTP_500_INTERNAL_SERVER_ERROR, "desc": "Cannot update follow!"}
+            ErrorData = {
+                "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "desc": "Cannot update follow!",
+            }
 
-    response = {
-        "id_token": id_token,
-        "refresh_token": refresh_token
-    }
+    response = {"id_token": id_token, "refresh_token": refresh_token}
     return response, ErrorData
+
 
 # - Auth DB_VIEWS------------------------------------------------------------------------------------------------------

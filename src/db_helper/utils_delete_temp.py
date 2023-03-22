@@ -1,7 +1,7 @@
 # # Import
 # import os
 # from firebase_admin import auth
-# import firebase_admin 
+# import firebase_admin
 # # result = auth.get_users()
 
 # # print('Successfully fetched user data:')
@@ -32,8 +32,3 @@
 #     return all_uids
 
 # # print(get_all_users())
-
-
-
-
-
