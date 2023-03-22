@@ -17,7 +17,7 @@ from db_helper.db_views import *
 app = FastAPI()
 
 # Enable CORS
-origins = ['*']
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,7 +28,8 @@ app.add_middleware(
 )
 
 # AUTH Decorators BEGIN
-#=========================
+# =========================
+
 
 @app.post("/auth/user/signup")
 async def user_signup(inputs: Request):
@@ -38,7 +39,7 @@ async def user_signup(inputs: Request):
         username = inputData["name"]
         password = inputData["password"]
         email = inputData["email"]
-        user_avatar_encoded = inputData['avatar']
+        user_avatar_encoded = inputData["avatar"]
 
         response = ""
         ErrorData = {"code": status.HTTP_200_OK, "desc": "No Error"}
@@ -64,10 +65,10 @@ async def user_signup(inputs: Request):
                 "email": email,
                 "name": username,
                 "password": password,
-                "avatar_url" : avatar_url,
+                "avatar_url": avatar_url,
             }
         }
-        
+
         addUserInputData["user_data"].update(user_db_data)
 
         addUserData, ErrorData = add_user(addUserInputData)
@@ -79,10 +80,7 @@ async def user_signup(inputs: Request):
             response = "signup failed!"
 
         # Send Outputs
-        ResponseData = {
-            "output": response,
-            "error": ErrorData
-        }
+        ResponseData = {"output": response, "error": ErrorData}
         return JSONResponse(ResponseData)
     except ValueError as e:
         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
@@ -100,21 +98,16 @@ async def user_login(inputs: Request):
         ErrorData = {"code": status.HTTP_200_OK, "desc": "No Error"}
 
         # Call DB Service to Login User
-        login_data = {
-            "email": email,
-            "password": password
-        }
+        login_data = {"email": email, "password": password}
         login_response, ErrorData = login_user(login_data)
-        
+
         # Send Outputs
-        ResponseData = {
-            "output": login_response,
-            "error": ErrorData
-        }
+        ResponseData = {"output": login_response, "error": ErrorData}
 
         return JSONResponse(ResponseData)
     except ValueError as e:
         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
+
 
 @app.post("/auth/user/resend/email")
 async def user_resend_email(inputs: Request):
@@ -127,16 +120,14 @@ async def user_resend_email(inputs: Request):
         ErrorData = {"code": status.HTTP_200_OK, "desc": "No Error"}
 
         response, ErrorData = resend_verfication_email(email)
-        
+
         # Send Outputs
-        ResponseData = {
-            "output": response,
-            "error": ErrorData
-        }
+        ResponseData = {"output": response, "error": ErrorData}
 
         return JSONResponse(ResponseData)
     except ValueError as e:
         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
+
 
 @app.get("/auth/user/get")
 async def user_get(inputs: Request):
@@ -151,21 +142,19 @@ async def user_get(inputs: Request):
         getUserData, ErrorData = get_user(inputData)
 
         # Send Outputs
-        ResponseData = {
-            "output": getUserData,
-            "error": ErrorData
-        }
+        ResponseData = {"output": getUserData, "error": ErrorData}
         return JSONResponse(ResponseData)
     except ValueError as e:
         print("user_get[error]: " + str(e))
         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
+
 
 @app.post("/auth/user/update")
 async def user_update(inputs: Request):
     try:
         # Load Inputs
         inputData = await inputs.json()
-        
+
         response = {}
         ErrorData = {"code": status.HTTP_200_OK, "desc": "No Error"}
 
@@ -178,17 +167,15 @@ async def user_update(inputs: Request):
         # Check if DB updated successfully
         if ErrorData["code"] == status.HTTP_200_OK:
             updateSuccess = True
-        
+
         updateUserData["update_success"] = updateSuccess
 
         # Send Outputs
-        ResponseData = {
-            "output": updateUserData,
-            "error": ErrorData
-        }
+        ResponseData = {"output": updateUserData, "error": ErrorData}
         return JSONResponse(ResponseData)
     except ValueError as e:
         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
+
 
 @app.post("/auth/user/password/reset")
 async def user_password_reset(inputs: Request):
@@ -205,16 +192,14 @@ async def user_password_reset(inputs: Request):
             response = "reset link sent to email!"
         else:
             ErrorData = {"code": status.HTTP_204_NO_CONTENT, "desc": "Invalid User!"}
-        
+
         # Send Outputs
-        ResponseData = {
-            "output": response,
-            "error": ErrorData
-        }
+        ResponseData = {"output": response, "error": ErrorData}
 
         return JSONResponse(ResponseData)
     except ValueError as e:
         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
+
 
 @app.post("/auth/user/delete")
 async def user_delete(inputs: Request):
@@ -238,10 +223,7 @@ async def user_delete(inputs: Request):
         deleteUserData["delete_success"] = deleteSuccess
 
         # Send Outputs
-        ResponseData = {
-            "output": deleteUserData,
-            "error": ErrorData
-        }
+        ResponseData = {"output": deleteUserData, "error": ErrorData}
         return JSONResponse(ResponseData)
     except ValueError as e:
         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
@@ -261,25 +243,31 @@ async def user_logout(inputs: Request):
         try:
             logoutUserData, ErrorData = logout_user(inputData)
             response = logoutUserData
-        
+
         except Exception as e:
             generate_error(e)
-            ErrorData = {"code": status.HTTP_500_INTERNAL_SERVER_ERROR, "desc": "Unable to logout user!"}
-            
+            ErrorData = {
+                "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "desc": "Unable to logout user!",
+            }
+
         # Send Outputs
-        ResponseData = {
-            "output": response,
-            "error": ErrorData
-        }
+        ResponseData = {"output": response, "error": ErrorData}
         return JSONResponse(ResponseData)
     except ValueError as e:
         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
 
-#=========================
+
+# =========================
 # AUTH Decorators END
 
 
 # Driver Code
 if __name__ == "__main__":
-    uvicorn.run('service:app', host=os.getenv('host'), port=int(os.getenv('port')), log_level="info", reload=True)
-
+    uvicorn.run(
+        "service:app",
+        host=os.getenv("host"),
+        port=int(os.getenv("port")),
+        log_level="info",
+        reload=True,
+    )

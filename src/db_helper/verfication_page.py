@@ -1,5 +1,5 @@
 def html_design(verify_link):
-        html = f"""\
+    html = f"""\
             <html>
 
             <head>
@@ -24,4 +24,4 @@ def html_design(verify_link):
                 </html>
 
         """
-        return html
+    return html
